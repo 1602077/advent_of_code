@@ -6,13 +6,12 @@ import (
     "strconv"
     "strings"
 
-    // "github.com/1602077/utils"
-    u "../utils"
+    "github.com/1602077/advent_of_code/utils"
 )
 
 func main() {
 
-    data := u.ReadInput("./input.txt")
+    data := utils.ReadInput("./input.txt")
     fmt.Println("Part One Solution")
     solve1(data)
     fmt.Println("\nPart Two Solution")
