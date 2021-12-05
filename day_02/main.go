@@ -3,15 +3,16 @@ package main
 import (
     "fmt"
     "log"
-    "os"
-    "bufio"
     "strconv"
     "strings"
+
+    // "github.com/1602077/utils"
+    u "../utils"
 )
 
 func main() {
 
-    data := readInput("./input.txt")
+    data := u.ReadInput("./input.txt")
     fmt.Println("Part One Solution")
     solve1(data)
     fmt.Println("\nPart Two Solution")
@@ -57,25 +58,7 @@ func solve1(data []string) {
 
 }
 
-func readInput(filename string)  []string {
-    file, err := os.Open(filename)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer file.Close()
 
-    sc := bufio.NewScanner(file)
-    lines := make([]string, 0)
-
-    for sc.Scan() {
-        lines = append(lines, sc.Text())
-    }
-
-    if err := sc.Err(); err != nil {
-        log.Fatal(err)
-    }
-    return lines
-}
 
 func parseLines(s string) (string, int) {
     parts := strings.Fields(s)
