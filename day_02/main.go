@@ -33,9 +33,7 @@ func solve2(data []string) {
             aim -= dist
         }
     }
-
     fmt.Printf("x, y, aim: (%v, %v, %v).\nx*y: %v.\n", x, y, aim,  x*y)
-
 }
 
 func solve1(data []string) {
@@ -52,9 +50,7 @@ func solve1(data []string) {
             y -= dist
         }
     }
-
     fmt.Printf("x, y: (%v, %v).\nx*y: %v.\n", x, y,  x*y)
-
 }
 
 
