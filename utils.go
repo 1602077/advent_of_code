@@ -1,5 +1,11 @@
 package utils
 
+import (
+    "log"
+    "os"
+    "bufio"
+)
+
 func readInput(filename string)  []string {
     file, err := os.Open(filename)
     if err != nil {
