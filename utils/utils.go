@@ -6,7 +6,7 @@ import (
     "bufio"
 )
 
-func readInput(filename string)  []string {
+func ReadInput(filename string)  []string {
     file, err := os.Open(filename)
     if err != nil {
         log.Fatal(err)
