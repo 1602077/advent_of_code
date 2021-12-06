@@ -10,25 +10,26 @@ import (
 
 func main() {
     part1()
+    part2()
 }
 
 
-func part1() int{
+func part1() int {
     data := readInputAsString("./input.txt")
     sects := strings.Split(data, "\n\n")
 
     numberDraw := parseNumberDraw(sects[0])
     bingoBoards := parseAllBingoBoards(sects[1:])
 
-    fmt.Printf("Numbers called: %v.\n\n", numberDraw)
-    fmt.Printf("Bingo Boards 1 & 2: \n %v \n\n %v\n\n", bingoBoards[0], bingoBoards[1])
+    // fmt.Printf("Numbers called: %v.\n\n", numberDraw)
+    // fmt.Printf("Bingo Boards 1 & 2: \n %v \n\n %v\n\n", bingoBoards[0], bingoBoards[1])
 
     for _, num := range numberDraw {
         for _, b := range bingoBoards {
             if b.callNum(num) {
-                fmt.Printf("Final Number: %v.\n", num)
-                fmt.Printf("Final Board: %v.\n", b)
-                fmt.Printf("Score of winning board: %v.\n", b.finalScore(num))
+                // fmt.Printf("Final Number: %v.\n", num)
+                // fmt.Printf("Final Board: %v.\n", b)
+                fmt.Printf("PART 1: Score of fastest winning board: %v.\n", b.finalScore(num))
                 return b.finalScore(num)
             }
         }
@@ -36,6 +37,34 @@ func part1() int{
     return -1
 }
 
+func part2() int {
+    data := readInputAsString("./input.txt")
+    sects := strings.Split(data, "\n\n")
+
+    numberDraw := parseNumberDraw(sects[0])
+    bingoBoards := parseAllBingoBoards(sects[1:])
+
+    longestToWinBoardIdx := 0
+    maxNumToWin := 0
+    finalNum := -1
+    for i, b := range bingoBoards {
+        for j, num := range numberDraw {
+            if b.callNum(num) {
+                b.numCalledToWin = j
+                if j > maxNumToWin {
+                    maxNumToWin = j
+                    longestToWinBoardIdx = i
+                    finalNum = num
+                }
+                break
+            }
+        }
+    }
+    scoreOfSlowestBoard := bingoBoards[longestToWinBoardIdx].finalScore(finalNum)
+    fmt.Printf("PART 2: Score of slowest winning board: %v.\n", scoreOfSlowestBoard)
+
+    return scoreOfSlowestBoard
+}
 
  /*
  ##################################################
@@ -68,6 +97,7 @@ func parseBingoBoard(input string) *bingoBoard {
     b := bingoBoard{
         grid: make([]int, 25),
         called: make([]bool, 25),
+        numCalledToWin: -1,
     }
     for i, field := range strings.Fields(input) {
         num, _ := strconv.Atoi(field)
@@ -93,6 +123,7 @@ func parseAllBingoBoards(input []string) []bingoBoard {
 type bingoBoard struct {
     grid []int
     called []bool
+    numCalledToWin int
 }
 
  func (b *bingoBoard) lineFinished(line int) bool {
