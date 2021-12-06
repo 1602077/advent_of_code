@@ -6,19 +6,42 @@ import (
     "strings"
     "io/ioutil"
     "log"
-
-    // "github.com/1602077/advent_of_code/utils"
 )
 
 func main() {
-    splitInputs("./input.txt")
-
+    part1()
 }
 
-type bingoBoard struct {
-    grid []byte
-    called [][]bool
+
+func part1() int{
+    data := readInputAsString("./input.txt")
+    sects := strings.Split(data, "\n\n")
+
+    numberDraw := parseNumberDraw(sects[0])
+    bingoBoards := parseAllBingoBoards(sects[1:])
+
+    fmt.Printf("Numbers called: %v.\n\n", numberDraw)
+    fmt.Printf("Bingo Boards 1 & 2: \n %v \n\n %v\n\n", bingoBoards[0], bingoBoards[1])
+
+    for _, num := range numberDraw {
+        for _, b := range bingoBoards {
+            if b.callNum(num) {
+                fmt.Printf("Final Number: %v.\n", num)
+                fmt.Printf("Final Board: %v.\n", b)
+                fmt.Printf("Score of winning board: %v.\n", b.finalScore(num))
+                return b.finalScore(num)
+            }
+        }
+    }
+    return -1
 }
+
+
+ /*
+ ##################################################
+ PARSE INPUT INTO NUMBERS DRAWN & BINGO BOARDS
+ ##################################################
+ */
 
 func readInputAsString(filename string) string {
     content, err := ioutil.ReadFile("./input.txt")
@@ -28,24 +51,14 @@ func readInputAsString(filename string) string {
     return string(content)
 }
 
-func splitInputs(filename string){
-    data := readInputAsString(filename)
-    sects := strings.Split(data, "\n\n")
-
-    numberDraw := parseNumberDraw(sects[0])
-    bingoBoards := parseAllBingoBoards(sects[1:])
-
-    fmt.Printf("Numbers called: %v.\n\n", numberDraw)
-    fmt.Printf("Bingo Boards 1 & 2: \n %v \n\n %v", bingoBoards[0], bingoBoards[1])
-}
 
 // Get called numbers from first line of `input.txt`
-func parseNumberDraw(line string) []int16 {
+func parseNumberDraw(line string) []int {
     calledNumStr := strings.Split(line, ",")
-    var numberDraw []int16
+    var numberDraw []int
     for _, value := range calledNumStr {
         num, _ := strconv.ParseInt(value, 10, 16)
-        numberDraw = append(numberDraw, int16(num))
+        numberDraw = append(numberDraw, int(num))
     }
     return numberDraw
 }
@@ -53,11 +66,12 @@ func parseNumberDraw(line string) []int16 {
 // extract a single bingo board from an input string
 func parseBingoBoard(input string) *bingoBoard {
     b := bingoBoard{
-        grid: make([]byte, 25),
+        grid: make([]int, 25),
+        called: make([]bool, 25),
     }
     for i, field := range strings.Fields(input) {
         num, _ := strconv.Atoi(field)
-        b.grid[i] = byte(num)
+        b.grid[i] = int(num)
     }
     return &b
 }
@@ -69,4 +83,61 @@ func parseAllBingoBoards(input []string) []bingoBoard {
         bingoBoards = append(bingoBoards, *parseBingoBoard(part))
     }
     return bingoBoards
+}
+
+ /*
+ ##################################################
+ BINGO BOARD MANIPULATIONS
+ ##################################################
+ */
+type bingoBoard struct {
+    grid []int
+    called []bool
+}
+
+ func (b *bingoBoard) lineFinished(line int) bool {
+     return b.called[5*line] == true &&
+        b.called[5*line + 1] == true &&
+        b.called[5*line + 2] == true &&
+        b.called[5*line + 3] == true &&
+        b.called[5*line + 4] == true
+ }
+
+ func (b *bingoBoard) colFinished(col int) bool {
+     return b.called[col] == true &&
+        b.called[col + 5] == true &&
+        b.called[col + 10] == true &&
+        b.called[col + 15] == true &&
+        b.called[col + 20] == true
+ }
+
+ func findIndex(el int, data []int) int {
+     for k, v := range data {
+         if el == v {
+             return k
+         }
+     }
+     return -1
+}
+
+func (b *bingoBoard) callNum(num int) bool {
+    idx := findIndex(num, b.grid)
+    if idx == -1 {
+        // b.called[idx] = false
+        return false
+    }
+
+    b.called[idx] = true
+
+    return b.lineFinished(idx/5) || b.colFinished(idx%5)
+ }
+
+func (b *bingoBoard) finalScore(num int) int {
+    sum := 0
+    for i, val := range b.called {
+        if val == false {
+            sum += b.grid[i]
+        }
+    }
+    return sum * num
 }
