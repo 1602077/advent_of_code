@@ -14,7 +14,8 @@ func main() {
 }
 
 type BingBoard struct {
-    grid map[int]
+    grid [][]int
+    called [][]bool
 }
 
 func splitInputs(filename string){
