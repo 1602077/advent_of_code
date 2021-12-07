@@ -14,9 +14,32 @@ func main() {
 
 func part1() {
     coords := parseInputFile()
-    fmt.Println(coords)
-}
+    var grid [1000][1000]uint8
 
+    for _, c := range coords {
+        if c.x1 == c.x2 {
+            ls :=  createLine(c.y1, c.y2)
+            for _, p := range ls {
+                grid[c.x1][p]++
+            }
+        } else if c.y2 == c.y1 {
+            ls := createLine(c.x1, c.x2)
+            for _, p := range ls {
+                grid[p][c.y1]++
+            }
+        }
+    }
+
+    numInter := 0
+    for i := range grid {
+        for j := range grid[i] {
+            if grid[i][j] > 1 {
+                numInter++
+            }
+        }
+    }
+    fmt.Printf("PART 1 Number of intersections: %v.\n", numInter)
+}
 
 type coord struct {
     x1 int
@@ -41,7 +64,7 @@ func parseInputFile() []coord  {
 
 func parseCoord(input string) coord {
     parts := strings.Fields(input)
-    // Convert []str -> []int.
+    // Convert str -> []str -> []int.
     coords1, _ := sliceAtoi(strings.Split(parts[0], ","))
     coords2, _ := sliceAtoi(strings.Split(parts[2], ","))
 
@@ -63,5 +86,18 @@ func sliceAtoi(sa []string) ([]int, error) {
         si = append(si, i)
     }
     return si, nil
+}
+
+func createLine(c1, c2 int)(l []int) {
+    if c1 > c2 {
+        for ; c2 <= c1; c2++ {
+            l = append(l, c2)
+        }
+    } else {
+        for ; c1 <= c2; c1++ {
+            l = append(l, c1)
+        }
+    }
+    return
 }
 
