@@ -10,6 +10,7 @@ import (
 
 func main() {
     part1()
+    part2()
 }
 
 func part1() {
@@ -18,12 +19,12 @@ func part1() {
 
     for _, c := range coords {
         if c.x1 == c.x2 {
-            ls :=  createLine(c.y1, c.y2)
+            ls :=  createHVLine(c.y1, c.y2)
             for _, p := range ls {
                 grid[c.x1][p]++
             }
         } else if c.y2 == c.y1 {
-            ls := createLine(c.x1, c.x2)
+            ls := createHVLine(c.x1, c.x2)
             for _, p := range ls {
                 grid[p][c.y1]++
             }
@@ -39,6 +40,43 @@ func part1() {
         }
     }
     fmt.Printf("PART 1 Number of intersections: %v.\n", numInter)
+}
+
+func part2() {
+    coords := parseInputFile()
+    var grid [1000][1000]uint8
+
+    for _, c := range coords {
+        // handles horizontal & vertical lines
+        if c.x1 == c.x2 {
+            ls :=  createHVLine(c.y1, c.y2)
+            for _, p := range ls {
+                grid[c.x1][p]++
+            }
+        } else if c.y2 == c.y1 {
+            ls := createHVLine(c.x1, c.x2)
+            for _, p := range ls {
+                grid[p][c.y1]++
+            }
+         } else if (c.x2 - c.x1) == (c.y2 - c.y1){
+            // TODO: handle diagonal lines
+            diagLine := createDiagLine(c)
+            for _, p := range diagLine {
+                grid[p[0]][p[1]]++
+                fmt.Print(p[0], " ", p[1], " \n")
+            }
+        }
+    }
+
+    numInter := 0
+    for i := range grid {
+        for j := range grid[i] {
+            if grid[i][j] > 1 {
+                numInter++
+            }
+        }
+    }
+    fmt.Printf("PART 2 Number of intersections: %v.\n", numInter)
 }
 
 type coord struct {
@@ -88,7 +126,7 @@ func sliceAtoi(sa []string) ([]int, error) {
     return si, nil
 }
 
-func createLine(c1, c2 int)(l []int) {
+func createHVLine(c1, c2 int)(l []int) {
     if c1 > c2 {
         for ; c2 <= c1; c2++ {
             l = append(l, c2)
@@ -99,5 +137,18 @@ func createLine(c1, c2 int)(l []int) {
         }
     }
     return
+}
+
+func createDiagLine (c coord) [][2]int {
+    var points [][2]int
+    grad := (c.y2 - c.y1) / (c.x2 - c.x1)
+    i := c.y1 - grad * c.x1
+
+    for x := c.x1; x <= c.x2; x++ {
+        y := grad * x + i
+        p := [2]int{x, y}
+        points = append(points, p)
+    }
+    return points
 }
 
