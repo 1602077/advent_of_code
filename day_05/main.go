@@ -13,7 +13,8 @@ func main() {
 }
 
 func part1() {
-    parseInputFile()
+    coords := parseInputFile()
+    fmt.Println(coords)
 }
 
 
@@ -24,17 +25,18 @@ type coord struct {
     y2 int
 }
 
-func parseInputFile() {
+func parseInputFile() []coord  {
     data, err := ioutil.ReadFile("./input.txt")
     if err != nil {
         log.Fatal(err)
     }
 
-    lineSegs := []coord
-
-    // coords := parseCoord("0,9 -> 5,9")
-    // fmt.Println(coords)
-
+    var lineSegs []coord
+    lines := strings.Split(string(data), "\n")
+    for _, line := range lines[:len(lines)-1] {
+        lineSegs = append(lineSegs, parseCoord(line))
+    }
+    return lineSegs
 }
 
 func parseCoord(input string) coord {
