@@ -4,7 +4,7 @@ import (
     "fmt"
     "io/ioutil"
     "log"
-    "reflect"
+    // "reflect"
     "strings"
 )
 
@@ -14,13 +14,12 @@ type sigPattern struct {
 }
 
 func main() {
-    part1("./input_test.txt")
-    // part1("./input.txt")
+    // part1("./input_test.txt")
+    part1("./input.txt")
 }
 
 func part1(filename string) int {
     displaySignal := readInput(filename)
-    // fmt.Print(displaySignal)
 
     // count how many times 1, 4, 7, 8 appear in .output
     count := 0
@@ -33,11 +32,10 @@ func part1(filename string) int {
     for _, sig := range displaySignal {
         fmt.Println(sig.output)
         for _, dig := range sig.output {
-            // TODO
-            fmt.Println(dig)
-            fmt.Println("Type of dig:", reflect.TypeOf(dig))
-            fmt.Println(len(dig))
-            break
+            length := len(dig)
+            if length == 2 || length == 3 || length == 4 || length == 7 {
+                count++
+            }
         }
     }
     fmt.Printf("PART 1: Number of times a 1, 4, 7 or 8 are displayed: %v.\n", count)
@@ -67,4 +65,3 @@ func parseDisplayLine(line string) sigPattern{
     lineSignal.output = strings.Split(strings.TrimSpace(line_str[1]), " ")
     return lineSignal
 }
-
