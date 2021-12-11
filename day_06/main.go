@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	// part1(80)
-	part2(80)
+	part1(80)
+	part2(256)
 }
 
 func part1(numDays int) {
@@ -53,30 +53,26 @@ func part2(numDays int) {
 	for _, lf := range lfs {
 		lf_lifecycles[lf]++
 	}
-	fmt.Print(lf_lifecycles)
 
-	var y, x int
 	for k := 0; k < numDays; k++ {
-		for i := internalTimer; i >= minTimer; i-- {
-			if i == 0 {
-				lf_lifecycles[internalTimer] += lf_lifecycles[i]
-				lf_lifecycles[6] += lf_lifecycles[i]
-			}
-			x = lf_lifecycles[i]
-			lf_lifecycles[i] = y
-			y = x
+		lf_lf0 := lf_lifecycles[0]
+		for i := minTimer; i < internalTimer; i++ {
+			lf_lifecycles[i] = lf_lifecycles[i+1]
 		}
+		lf_lifecycles[internalTimer] = lf_lf0
+		lf_lifecycles[6] += lf_lf0
 	}
+
 	numLF := 0
-	for i := internalTimer; i >= minTimer; i-- {
-		numLF += lf_lifecycles[i]
+	for _, v := range lf_lifecycles {
+		numLF += v
 	}
 	fmt.Printf("\nNumber of Lantern fish after %v days: %v.\n", numDays, numLF)
 }
 
 func parseInput() []int {
-	// data, err := ioutil.ReadFile("./input.txt")
-	data, err := ioutil.ReadFile("./input_test.txt")
+	data, err := ioutil.ReadFile("./input.txt")
+	// data, err := ioutil.ReadFile("./input_test.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
