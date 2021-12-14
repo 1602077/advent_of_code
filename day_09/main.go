@@ -1,17 +1,16 @@
 package main
 
 import (
-    // "bytes"
     "fmt"
     "io/ioutil"
     "log"
     "strings"
+    "sort"
     // "strconv"
-    // "reflect"
 )
 
 func main() {
-    // part1("./input.txt")
+    part1("./input.txt")
     part2("./input_test.txt")
 }
 
@@ -51,20 +50,28 @@ func part2(filename string) {
             }
         }
     }
-    // TODO: calculate basin sizes
+    // TODO: finish basin size caclulation function
     getBasinSizes(lT)
 
 }
 
 func getBasinSizes(lt grid) []int {
-    fmt.Println(lt.heightMap, "\n")
-    fmt.Println(lt.lpValue, "\n")
+    fmt.Println(lt.heightMap)
+    fmt.Println(lt.lpValue)
 
-    nRows := len(lt.heightMap)
-    nCols := len(lt.heightMap[0])
+    // nRows := len(lt.heightMap)
+    // nCols := len(lt.heightMap[0])
 
     var basinSizes []int
+    var inBasin [][]bool
+    for k := range lt.lpValue {
+        p := lt.lpPos[k]
+        fmt.Println(inBasin[p[0]][p[1]])
+        fmt.Print()
+        break
+    }
 
+    /*
     for k, _ := range lt.lpValue {
         pos := lt.lpPos[k]
         fmt.Println(pos)
@@ -103,9 +110,14 @@ func getBasinSizes(lt grid) []int {
         }
         basinSizes = append(basinSizes, basinSize)
     }
+    */
     fmt.Printf("PART 2 Basin Sizes: %v.\n", basinSizes)
-    // TODO:  Sort basin sizes and return the product of them
-    var prod int
+
+    sort.Ints(basinSizes)
+    var prod int = 1
+    for _, v := range basinSizes[len(basinSizes) - 3:] {
+        prod *= v
+    }
     fmt.Printf("Part 2 Product of basin sizes: %v.\n", prod)
     return basinSizes
 }
