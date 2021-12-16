@@ -9,6 +9,7 @@ import (
 
 func main() {
     part1("./input.txt")
+    part2("./input.txt")
 }
 
 var (
@@ -60,6 +61,40 @@ func part1(filename string) int {
     return flashCount
 }
 
+func part2(filename string) int {
+    grid := readInput(filename)
+    sync_step := 0
+    // keep iterating until all flash
+    for k := 0; ; k++ {
+        for y := 0; y < len(grid); y++ {
+            for x:= 0; x < len(grid[y]); x++ {
+                if !grid[y][x].flash {
+                    grid[y][x].energy++
+                    if grid[y][x].energy == 10 {
+                        flashPoint(point{x: x, y: y}, k, grid)
+                    }
+                }
+            }
+        }
+        allFlash := true
+        for y := 0; y < len(grid); y++ {
+            for x := 0; x < len(grid[y]); x++ {
+                if grid[y][x].flash {
+                    grid[y][x].flash = false
+                }
+                if grid[y][x].energy != 0 {
+                    allFlash = false
+                }
+            }
+        }
+        if allFlash {
+            sync_step = k +1
+            break
+        }
+    }
+    fmt.Printf("Part 2 Synchronisation first achieved at step: %v.\n", sync_step)
+    return sync_step
+}
 func flashPoint(currPoint point, currStep int, grid [10][10]*oct) {
     flashCount++
     grid[currPoint.y][currPoint.x].energy = 0
