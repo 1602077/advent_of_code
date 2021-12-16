@@ -11,7 +11,8 @@ import (
 
 func main() {
     part1("./input.txt")
-    part2("./input_test.txt")
+    part2("./input.txt")
+    // 1134
 }
 
 type grid struct {
@@ -19,6 +20,19 @@ type grid struct {
     lpValue []int
     lpPos [][]int
 }
+
+type point struct{
+    x, y int
+}
+
+var (
+    dirs = []point{
+        {x: -1, y: 0},
+        {x: 0, y: -1},
+        {x: 1, y: 0},
+        {x: 0, y: 1},
+    }
+)
 
 func part1(filename string) int {
     m := readInput(filename)
@@ -38,7 +52,7 @@ func part1(filename string) int {
     return r
 }
 
-func part2(filename string) {
+func part2(filename string) int {
     m := readInput(filename)
     lT := grid{heightMap: m, lpValue: make([]int, 0), lpPos: make([][]int, 0)}
 
@@ -50,82 +64,70 @@ func part2(filename string) {
             }
         }
     }
-    // TODO: finish basin size caclulation function
-    getBasinSizes(lT)
-
+    basinSizes := make([]int, 0)
+    for _, p := range lT.lpPos {
+        var pp point
+        pp.x, pp.y  = p[0], p[1]
+        points := calculateBasinSize(pp, lT.heightMap)
+        basinSizes = append(basinSizes, len(points))
+    }
+    sort.Ints(basinSizes)
+    l := len(basinSizes)
+    prod := basinSizes[l-1]*basinSizes[l-2]*basinSizes[l-3]
+    fmt.Printf("Part 2 Product of top three basin sizes: %v.\n", prod)
+    return prod
 }
 
-func getBasinSizes(lt grid) []int {
-    fmt.Println(lt.heightMap)
-    fmt.Println(lt.lpValue)
-
-    // nRows := len(lt.heightMap)
-    // nCols := len(lt.heightMap[0])
-
-    var basinSizes []int
-    var inBasin [][]bool
-    for k := range lt.lpValue {
-        p := lt.lpPos[k]
-        fmt.Println(inBasin[p[0]][p[1]])
-        fmt.Print()
-        break
+func neighbors(p point, grid [][]int) []point {
+    var result []point
+    for _, d := range dirs {
+        np := point{x: p.x + d.x, y: p.y + d.y}
+        if np.x >= 0 && np.x < len(grid[p.y]) && np.y >= 0 && np.y < len(grid) {
+            if grid[np.y][np.x] > grid[p.y][p.x] && grid[np.y][np.x] != 9 {
+                result = append(result, np)
+            }
+        }
     }
+    return result
+}
 
-    /*
-    for k, _ := range lt.lpValue {
-        pos := lt.lpPos[k]
-        fmt.Println(pos)
-        var basinSize int = 1
-        // iterate right
-        for i := pos[0]+1; i < nRows; i++ {
-            prev := lt.heightMap[i-1][pos[1]]
-            curr := lt.heightMap[i][pos[1]]
-            if curr > prev && curr != 9 {
-                basinSize++
-            }
-        }
-        // iterate left
-        for i := pos[0]-1; i >= 0; i-- {
-            prev := lt.heightMap[i+1][pos[1]]
-            curr := lt.heightMap[i][pos[1]]
-            if curr > prev && curr != 9 {
-                basinSize++
-            }
-        }
-        // iterate top
-        for j := pos[1] + 1; j < nCols; j++ {
-            prev := lt.heightMap[pos[0]][j-1]
-            curr := lt.heightMap[pos[0]][j]
-            if curr > prev && curr != 9 {
-                basinSize++
-            }
-        }
-        // iterate down
-        for j := pos[1] - 1; j >= 0; j-- {
-            prev := lt.heightMap[pos[0]][j+1]
-            curr := lt.heightMap[pos[0]][j]
-            if curr > prev && curr != 9 {
-                basinSize++
-            }
-        }
-        basinSizes = append(basinSizes, basinSize)
+func calculateBasinSize(p point, grid [][]int) map[point]struct{} {
+    start := p
+    seen := map[point]struct{}{
+        start: {},
     }
-    */
-    fmt.Printf("PART 2 Basin Sizes: %v.\n", basinSizes)
+    queue := []point{start}
+    var current point
+    for len(queue) > 0 {
+        current, queue = queue[0], queue[1:]
+        for _, next := range neighbors(current, grid) {
+            if _, ok := seen[next]; !ok {
+                queue = append(queue, next)
+                seen[next] = struct{}{}
+            }
+        }
+    }
+    return seen
+}
 
-    sort.Ints(basinSizes)
-    var prod int = 1
-    for _, v := range basinSizes[len(basinSizes) - 3:] {
-        prod *= v
+func inSlice(sub []int, slice [][]int) bool {
+    for _, s := range slice {
+        if len(s) != len(sub) {
+            return false
+        }
+        for i, v := range s {
+            if v != sub[i] {
+                return false
+            }
+        }
     }
-    fmt.Printf("Part 2 Product of basin sizes: %v.\n", prod)
-    return basinSizes
+    return true
 }
 
 func isLowPoint(matrix [][]int, i, j int) bool {
     c := 0
     el := matrix[i][j]
-    if i-1 <0 || matrix[i-1][j] > el {
+    if i-1 < 0 || matrix[i-1][j] > el {
         c++
     }
     if i+1 >= len(matrix) || matrix[i+1][j] > el {
