@@ -8,56 +8,88 @@ import (
 )
 
 func main() {
-    part1("./input_test.txt")
+    part1("./input.txt")
+}
+
+var (
+    dirs = []point{
+        {x: 0, y: -1},
+        {x: -1, y: -1},
+        {x: -1, y: 0},
+        {x: 1, y: 1},
+        {x: 0, y: 1},
+        {x: -1, y: 1},
+        {x: 1, y: 0},
+        {x: 1, y: -1},
+    }
+)
+
+var flashCount int
+
+type point struct {
+    x,y int
+}
+
+type oct struct {
+    energy int
+    flash bool
 }
 
 func part1(filename string) int {
-    config := readInput(filename)
-    fmt.Println(config)
-
-    var num_flashes int = 0
-    for s := 1; s < 100; s++ {
-        var f int
-        config, f = simulateFlash(config)
-        num_flashes += f
-    }
-    fmt.Printf("PART 1 Number of flashes after 100 steps: %v.\n", num_flashes)
-    return num_flashes
-}
-
-func simulateFlash(config [][]int) ([][]int, int) {
-    // TODO: INCOMPLETE LOGIC HERE
-    var num_flashes int = 0
-    for i := range config {
-        for j := range config[0] {
-            c := config[i][j]
-
-            if c == 10 {
-                num_flashes++
-                // TODO: Finish here; add recursion function around flashing neighbours
-            } else {
-                c++
+    grid := readInput(filename)
+    for k := 0; k < 100; k++ {
+        for y := 0; y < len(grid); y++ {
+            for x:= 0; x < len(grid[y]); x++ {
+                if !grid[y][x].flash {
+                    grid[y][x].energy++
+                    if grid[y][x].energy == 10 {
+                        flashPoint(point{x: x, y: y}, k, grid)
+                    }
+                }
+            }
+        }
+        for y := 0; y < len(grid); y++ {
+            for x := 0; x < len(grid[y]); x++ {
+                if grid[y][x].flash {
+                    grid[y][x].flash = false
+                }
             }
         }
     }
-
-    return config, num_flashes
+    fmt.Printf("Part 1 Total number of flashes: %v.\n", flashCount)
+    return flashCount
 }
 
-func readInput(filename string) [][]int {
+func flashPoint(currPoint point, currStep int, grid [10][10]*oct) {
+    flashCount++
+    grid[currPoint.y][currPoint.x].energy = 0
+    grid[currPoint.y][currPoint.x].flash = true
+    for _, d := range dirs {
+        p := point{x: currPoint.x + d.x, y: currPoint.y + d.y}
+        if p.x >= 0 && p.x < len(grid[currPoint.y]) && p.y >= 0 && p.y < len(grid) {
+            if !grid[p.y][p.x].flash {
+                grid[p.y][p.x].energy++
+                if grid[p.y][p.x].energy == 10 {
+                    flashPoint(p, currStep, grid)
+                }
+            }
+        }
+    }
+}
+
+func readInput(filename string) [10][10]*oct {
     data, err := ioutil.ReadFile(filename)
     if err != nil {
         log.Fatal(err)
     }
-
     inStr := strings.Split(string(data), "\n")
-    m:= make([][]int, len(inStr)-1)
-    for i, val := range inStr[:len(inStr)-1] {
-        a := make([]int, len(inStr[0]))
+
+    grid := [10][10]*oct{}
+    for i, val := range inStr {
         for j, num := range val {
-            a[j] = int(num - '0')
+            n := num - '0'
+            grid[i][j] = &oct{energy: int(n)}
         }
-        m[i] = a
     }
-    return m
+    return grid
 }
