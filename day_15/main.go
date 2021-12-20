@@ -42,8 +42,8 @@ var dirs = []point{
 }
 
 func main() {
-    // part1("./input_test.txt")
-    part1("./input.txt")
+    part1("./input2.txt")
+    // part1("./input.txt")
 }
 
 func part1(filename string) int {
@@ -104,4 +104,8 @@ func readInput(filename string) grid {
         }
     }
     return g
+}
+
+func generateFullGrid(g grid) grid {
+    expandedGrid := make(map[point]gridPoint, 5*len(grid[0]), 5*len(grid))
 }
