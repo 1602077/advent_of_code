@@ -109,4 +109,3 @@ func minOfSlice(slice []int) int {
     }
     return minScore
 }
-
